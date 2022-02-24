@@ -1,54 +1,99 @@
-/*
-Esplora Music
- 
-Press SWITCH 1 and slide the slider at the same time
- 
-Created on 22 november 2012
-By Enrico Gueli, enrico.gueli@gmail.com
-modified 22 Dec 2012
-by Tom Igoe
-*/
- 
+// include the Esplora library
 #include <Esplora.h>
- 
-// these are the frequencies for the notes from middle C
-// to one octave above middle C:
+#include <Mouse.h>
+#include <Keyboard.h>
+
 const int note[] = {
-262, // C
-277, // C#
-294, // D
-311, // D#
-330, // E
-349, // F
-370, // F#
-392, // G
-415, // G#
-440, // A
-466, // A#
-494, // B
-523  // C next octave
+
+  262, // C
+
+  277, // C#
+
+  294, // D
+
+  311, // D#
+
+  330, // E
+
+  349, // F
+
+  370, // F#
+
+  392, // G
+
+  415, // G#
+
+  440, // A
+
+  466, // A#
+
+  494, // B
+
+  523  // C next octave
 };
- 
-void setup()
-{
- 
+
+void setup() {
+
+  Serial.begin(9600);       // initialize serial communication with your computer
+
+  Mouse.begin(); 
 }
- 
-void loop()
-{
-// read the button labeled SWITCH_DOWN. If it's low,
-// then play a note:
-if (Esplora.readButton(SWITCH_DOWN) == LOW) {
-int slider = Esplora.readSlider();
- 
-// use map() to map the slider's range to the
-// range of notes you have:
-byte thisNote = map(slider, 0, 1023, 0, 13);
-// play the note corresponding to the slider's position:
-Esplora.tone(note[thisNote]);
-}
-else {
-// if the button isn't pressed, turn the note off:
-Esplora.noTone();
-}
+
+
+void loop() {
+
+  int xValue = Esplora.readJoystickX();        // read the joystick's X position
+
+  int yValue = Esplora.readJoystickY();        // read the joystick's Y position
+
+  int button = Esplora.readJoystickSwitch();   // read the joystick pushbutton
+
+  Serial.print("Joystick X: ");                // print a label for the X value
+
+  Serial.print(xValue);                        // print the X value
+
+  Serial.print("\tY: ");                       // print a tab character and a label for the Y value
+
+  Serial.print(yValue);                        // print the Y value
+
+  Serial.print("\tButton: ");                  // print a tab character and a label for the button
+
+  Serial.print(button);                        // print the button value
+
+  int mouseX = map(xValue, -512, 512, 10, -10);  // map the X value to a range of movement for the mouse X
+
+  int mouseY = map(yValue, -512, 512, -10, 10);  // map the Y value to a range of movement for the mouse Y
+
+  Mouse.move(mouseX, mouseY, 0);                 // move the mouse
+
+  if (button == 0) {                           // if the joystick button is pressed
+    Esplora.tone(note[6]);
+    Mouse.press();                             // send a mouse click
+
+  } else {
+    Esplora.noTone();
+    Mouse.release();                   
+
+  }      
+
+  delay(10);
+
+  int slider = Esplora.readSlider();
+
+
+  byte bright  = slider/4;
+
+  Esplora.writeRGB(slider, 200, 0);
+
+//  Keyboard.begin();
+//  while(Esplora.readButton(SWITCH_DOWN)){
+//    Keyboard.press(KEY_DOWN_ARROW);
+//    Keyboard.release(KEY_DOWN_ARROW);
+//    }
+//  while(Esplora.readButton(SWITCH_UP)){
+//      Keyboard.press(KEY_UP_ARROW);
+//      Keyboard.release(KEY_UP_ARROW);
+//      }
+// 
+//  
 }
